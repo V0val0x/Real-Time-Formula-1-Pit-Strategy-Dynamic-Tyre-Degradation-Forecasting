@@ -102,6 +102,60 @@ For full project requirements, open research questions, pair rules, and midpoint
 
 ---
 
+## Git Branching & Collaboration Workflow
+
+To ensure smooth collaboration between the two pairs and prevent merge conflicts, all team members should follow this workflow:
+
+### 1. Branch Naming Convention
+* **Main Branch (`main`):** Production-ready, shared baseline code. No direct untested pushes to `main`.
+* **Pair A Work:** `pair-a/<topic-or-task>` (e.g. `pair-a/interactive-ui`, `pair-a/phase1-telemetry-plots`).
+* **Pair B Work:** `pair-b/<topic-or-task>` (e.g. `pair-b/residual-analysis`, `pair-b/phase1-static-plots`).
+* **Shared Core Fixes:** `core/<bugfix-or-feature>` (e.g. `core/fix-pit-delta`, `core/data-loader-patch`).
+
+### 2. Workspace Isolation Rule
+* **Pair A** works strictly inside `notebooks/pair_a_ai_aided/` and `ai_logs/`.
+* **Pair B** works strictly inside `notebooks/pair_b_human_only/`.
+* Shared core files (`src/`, `data/`, `scripts/`) must only be modified with explicit alignment from all 4 team members.
+
+### 3. Step-by-Step Git Commands
+
+#### A. Starting New Work
+```bash
+# 1. Fetch latest updates from main
+git checkout main
+git pull origin main
+
+# 2. Branch off for your pair's task
+git checkout -b pair-a/phase1-visuals  # or pair-b/phase1-visuals
+```
+
+#### B. Committing and Pushing
+```bash
+# 3. Check status and stage only your files
+git status
+git add notebooks/pair_a_ai_aided/
+
+# 4. Commit with a clear, concise message
+git commit -m "feat(pair-a): add interactive degradation curve plot"
+
+# 5. Push your branch to GitHub
+git push -u origin pair-a/phase1-visuals
+```
+
+#### C. Merging via Pull Request (PR)
+1. On GitHub, create a **Pull Request** from your branch into `main`.
+2. Confirm that only files in your pair's directory are modified.
+3. Have at least one team member from the other pair review and approve the PR.
+4. Merge using **Squash and Merge** (or Rebase) to maintain a clean linear history.
+5. After merging, update your local `main`:
+   ```bash
+   git checkout main
+   git pull origin main
+   git branch -d pair-a/phase1-visuals
+   ```
+
+---
+
 ## Key Deadlines
 
 * **21.10.2026 (23:59):** Group formation registration.

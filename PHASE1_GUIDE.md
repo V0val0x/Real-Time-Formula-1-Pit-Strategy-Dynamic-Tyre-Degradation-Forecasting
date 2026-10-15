@@ -67,7 +67,11 @@ The 4 group members are divided into two pairs for Phase I:
 ### Pair B (Human-Only Pair)
 - **Role:** Conducts the analysis independently without Generative AI assistance. Rely on standard data science libraries (Matplotlib, Seaborn, Pandas) and manual reasoning.
 - **Code Completion:** Standard IDE completion and reading official library documentation are permitted; code generation prompts are prohibited.
-- **Workspace:** Build your notebooks or scripts inside `notebooks/pair_b_human_only/`.
+### Git Branching Rules for Pairs
+- **Never push untested code directly to `main`**.
+- Pair A works on `pair-a/...` branches (modifying only `notebooks/pair_a_ai_aided/` and `ai_logs/`).
+- Pair B works on `pair-b/...` branches (modifying only `notebooks/pair_b_human_only/`).
+- Merge changes via GitHub Pull Requests reviewed by the other pair. See detailed git commands in [README.md](README.md#git-branching--collaboration-workflow).
 
 ---
 
