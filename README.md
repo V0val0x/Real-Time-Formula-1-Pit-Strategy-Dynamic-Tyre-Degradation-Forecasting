@@ -15,30 +15,33 @@ An end-to-end telemetry pipeline, physics-informed machine learning model, and r
 AIandVis/
 ├── data/
 │   └── processed/
-│       └── f1_curated_telemetry.csv  # 9,202 curated FastF1 laps across 7 Grand Prix
+│       └── f1_curated_telemetry.csv   # 9,202 curated FastF1 laps across 7 Grand Prix
 ├── src/
 │   ├── data/
-│   │   └── f1_data.py               # FastF1 loader and feature engineering pipeline
+│   │   └── f1_data.py                # FastF1 loader and feature engineering pipeline
 │   ├── models/
-│   │   ├── tyre_model.py            # Physics-aware degradation model with cliff detector
+│   │   ├── tyre_model.py             # Physics-aware degradation model with cliff detector
 │   │   └── trained_tyre_model.joblib # Serialized model artifact (R² = 0.724, MAE = 0.68s)
 │   ├── strategy/
-│   │   ├── strategy_engine.py       # Real-time multi-branch strategy recommender
-│   │   └── pit_dynamics.py          # Pit-lane loss and cold tyre warm-up models
+│   │   ├── strategy_engine.py        # Real-time multi-branch strategy recommender
+│   │   └── pit_dynamics.py           # Pit-lane loss and cold tyre warm-up models
 │   └── simulation/
-│       └── race_simulator.py        # Lap-by-lap telemetry replay and strategy simulator
+│       └── race_simulator.py         # Lap-by-lap telemetry replay and strategy simulator
 ├── notebooks/
-│   ├── phase1_visual_analytics.py   # Telemetry vs model behavior diagnostics
-│   └── red_bull_analysis.py         # Teammate comparison (VER vs PER)
+│   ├── pair_a_ai_aided/              # Workspace for AI-Aided Pair (Phase I)
+│   │   ├── phase1_visual_analytics.py
+│   │   └── red_bull_analysis.py
+│   └── pair_b_human_only/            # Workspace for Human-Only Pair (Phase I)
+│       └── starter_analysis.py
 ├── ai_logs/
-│   └── phase1_ai_log_template.md    # Required prompt and reflection log for AI-aided pair
-├── visualizations/                  # Diagnostic plots and figures
+│   └── phase1_ai_log_template.md     # Template for logging AI interactions (Pair A)
+├── visualizations/                   # Output diagnostic plots and figures
 ├── scripts/
-│   ├── download_real_data.py        # Batch telemetry download script
-│   └── train_model.py               # Model training and validation script
-├── test_pipeline.py                 # End-to-end verification and demonstration script
-├── requirements.txt                 # Python dependencies
-├── PHASE1_GUIDE.md                  # Comprehensive Phase I instructions
+│   ├── download_real_data.py         # Batch telemetry download script
+│   └── train_model.py                # Model training and validation script
+├── test_pipeline.py                  # End-to-end race simulation demo
+├── requirements.txt                  # Python dependencies
+├── PHASE1_GUIDE.md                   # Phase I requirements and deliverables guide
 └── README.md
 ```
 
@@ -54,7 +57,7 @@ cd Real-Time-Formula-1-Pit-Strategy-Dynamic-Tyre-Degradation-Forecasting
 
 ### 2. Set Up Virtual Environment
 ```bash
-# Create environment
+# Create virtual environment
 python3 -m venv .venv
 
 # Activate environment
@@ -65,35 +68,36 @@ source .venv/bin/activate  # macOS / Linux
 pip install -r requirements.txt
 ```
 
-> **Note:** The preprocessed dataset (`data/processed/f1_curated_telemetry.csv`) and the trained model (`src/models/trained_tyre_model.joblib`) are included in the repository. Both pairs start with identical data and model artifacts without needing to run initial downloads.
+> **Note:** The curated dataset (`data/processed/f1_curated_telemetry.csv`) and trained model (`src/models/trained_tyre_model.joblib`) are pre-packaged in the repository so both pairs start with identical data without manual downloads.
 
 ---
 
-## Execution
+## Running the Pipeline
 
-### Real-Time Race Simulation
-Replays the 2023 Bahrain GP for Max Verstappen, dynamically evaluating pit windows, Safety Car opportunities, and competitor undercut threats:
+### Shared Simulation Demo
+Runs an end-to-end race replay with live strategy evaluation:
 ```bash
 python test_pipeline.py
 ```
 
-### Red Bull Teammate Comparison (VER vs PER)
-Generates degradation profiles and residual distributions comparing Verstappen and Perez:
+### Pair A (AI-Aided) Workspace
 ```bash
-python notebooks/red_bull_analysis.py
+# Run visual analytics scripts
+python notebooks/pair_a_ai_aided/phase1_visual_analytics.py
+python notebooks/pair_a_ai_aided/red_bull_analysis.py
 ```
 
-### Phase I Behavioral Diagnostics
-Generates multi-panel telemetry vs prediction curves and strategy pivot timelines:
+### Pair B (Human-Only) Workspace
 ```bash
-python notebooks/phase1_visual_analytics.py
+# Run starter analysis script
+python notebooks/pair_b_human_only/starter_analysis.py
 ```
 
 ---
 
 ## Phase I Investigation Guide
 
-Detailed research questions, pair division protocols (AI-Aided vs Human-Only), and midpoint video deliverables are documented in:  
+For full project requirements, open research questions, pair rules, and midpoint video deliverables, refer to:  
 👉 **[PHASE1_GUIDE.md](PHASE1_GUIDE.md)**
 
 ---

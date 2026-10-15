@@ -1,80 +1,89 @@
-# Phase I Visual Analytics Guide (Vis4AI & AI4Vis)
-> **Course:** AI and Visualization (JKU Linz)  
+# Phase I Project & Analytics Guide
+> **Course:** AI and Visualization (JKU Linz - Fall 2026)  
 > **Topic:** Real-Time Formula 1 Pit Strategy & Dynamic Tyre Degradation Forecasting (Red Bull Racing Case Study)  
-> **Midpoint Deadline (Phase I Submission):** 11.11.2026 (23:59)
+> **Midpoint Deadline (Phase I):** 11.11.2026 at 23:59
 
 ---
 
-## 1. Goal and Core Question
-**Phase I Question:** *How does the model behave?*
+## 1. Project Overview & Shared Foundation
 
-The model is investigated as a **black box**: internal weights and representations are ignored for now, focusing strictly on inputs, outputs, prediction residuals, and strategic decisions.
+The goal of this project is to analyze the behavior of a physics-aware machine learning model and real-time decision engine that predicts Formula 1 tyre degradation and pit-stop strategies. The study focuses on Red Bull Racing (Max Verstappen vs Sergio Perez) during the 2023–2024 seasons.
 
-> **Course Guideline:**  
-> Visualization is an investigative tool, not a benchmark summary. A simple table of metrics (e.g. MAE or R²) is insufficient. The visualizations must expose systematic behavioral patterns, error clusters, and domain-specific anomalies.
+Both pairs in the group share the exact same baseline assets located in the repository:
+1. **Curated Telemetry Dataset:** `data/processed/f1_curated_telemetry.csv` (9,202 clean laps across 7 representative Grand Prix).
+2. **Pre-Trained Degradation Model:** `src/models/trained_tyre_model.joblib` (trained on historical lap telemetry, inputs: tyre compound, tyre age, effective wear, fuel mass, track temperature, driver indicator).
+3. **Pit Dynamics & Strategy Recommender:** `src/strategy/` and `src/simulation/race_simulator.py`.
 
 ---
 
-## 2. Research Questions & Hypotheses
+## 2. Phase I Objective: "How Does the Model Behave?"
 
-1. **Driver Bias (VER vs PER):**
-   * How does the model perform on identical Red Bull machinery (RB19/RB20) across different driving styles?
-   * *Observation:* The model overestimates degradation for Verstappen in clean air (mean residual +0.34s) while showing higher variance for Perez fighting in traffic.
-2. **Disturbance Robustness (Safety Car & VSC):**
-   * Does the model differentiate nominal tyre age from effective wear during caution periods?
-3. **Non-Linear Tyre Cliff:**
-   * At which tyre life do Soft, Medium, and Hard compounds reach their performance cliff? Does the model flag cliffs before irreversible pace loss?
+In Phase I, the model is treated as a **black box**. You do not look inside internal weights, layers, or representations. You inspect inputs, outputs, errors, and decision triggers.
+
+> **Key Rule from Syllabus:**  
+> A simple performance table (e.g. MAE or R² score) is **not** sufficient. Visualizations must reveal systematic behavioral patterns, error distributions, or edge-case failures across different conditions.
+
+---
+
+## 3. Agreed Common Direction (Open Research Questions)
+
+Before branching into separate pair work, the team agreed to investigate the following core behavioral questions:
+
+1. **Driver Style & Vehicle Matching (VER vs PER):**
+   * Does the model perform equally well for both drivers in identical machinery, or does it show systematic bias/error patterns for one driving style over another?
+2. **Compound Degradation Profiles:**
+   * How do predicted pace degradation curves compare across Soft, Medium, and Hard compounds? Where does the model predict performance cliffs?
+3. **Disruption & Caution Periods (Safety Car / VSC):**
+   * How does the model respond to caution periods where physical tyre wear is reduced compared to normal green flag running?
 4. **Pit Cycle & Cold Tyre Dynamics:**
-   * Where are prediction residuals concentrated: on in-lap deceleration or out-lap cold tyre warm-up? How does track temperature (< 28°C) affect Hard compound warm-up errors?
+   * How do model errors behave on in-laps (entering the pit lane) and out-laps (cold tyre warm-up)? Does track temperature influence prediction residuals?
+
+*Note: Each pair must visually explore these questions independently to discover their own findings without pre-determined answers.*
 
 ---
 
-## 3. Pair Protocols (AI4Vis Track)
+## 4. Pair Workspaces & AI4Vis Protocol
 
-Both pairs use the same processed dataset (`data/processed/f1_curated_telemetry.csv`) and trained model (`src/models/trained_tyre_model.joblib`), but execute the visual analysis independently.
+The 4 group members are divided into two pairs for Phase I:
 
 ```
-                      ┌──────────────────────────────────────────────┐
-                      │                Shared Base:                  │
-                      │  9,202 F1 Laps Telemetry + Trained ML Model  │
-                      └──────────────────────┬───────────────────────┘
-                                             │
-                     ┌───────────────────────┴───────────────────────┐
-                     ▼                                               ▼
-       ┌───────────────────────────┐                   ┌───────────────────────────┐
-       │     Pair A: AI-Aided      │                   │    Pair B: Human-Only     │
-       ├───────────────────────────┤                   ├───────────────────────────┤
-       │ • Uses Generative AI      │                   │ • No GenAI for code or    │
-       │   (ChatGPT / Claude)      │                   │   visual design           │
-       │ • Rich interactive UIs    │                   │ • Light code completion   │
-       │   (Plotly / Streamlit)    │                   │   and docs search allowed │
-       │ • Mandatory AI log in     │                   │ • Static / exploratory    │
-       │   ai_logs/                │                   │   plots (Matplotlib/Seaborn)
-       └───────────────────────────┘                   └───────────────────────────┘
+                            Shared Project Base
+             (Dataset: f1_curated_telemetry.csv, Model: trained_tyre_model.joblib)
+                                    │
+               ┌────────────────────┴────────────────────┐
+               ▼                                         ▼
+      Pair A (AI-Aided)                         Pair B (Human-Only)
+   `notebooks/pair_a_ai_aided/`              `notebooks/pair_b_human_only/`
+   • Active use of GenAI (LLMs)              • No Generative AI
+   • Interactive dashboards / controls       • Rely on own reasoning & code
+   • Mandatory log in ai_logs/               • Traditional static/exploratory plots
 ```
 
-### Guidelines for Pair A (AI-Aided)
-* Use Generative AI for hypothesis ideation, dashboard development, and interactive controls.
-* Higher interaction fidelity (interactive widgets, dynamic filters) is expected.
-* **Mandatory AI Log:** Document key prompts, accepted/rejected suggestions, and failure modes in `ai_logs/phase1_ai_log.md` using the provided template.
+### Pair A (AI-Aided Pair)
+- **Role:** Uses Generative AI (ChatGPT, Claude, etc.) to brainstorm visualizations, generate plotting code, and build interactive exploration widgets.
+- **Expectation:** Higher interaction richness (e.g., interactive sliders, dropdowns, dynamic filtering) to reflect AI acceleration.
+- **Deliverable:** Keep a log of prompts, accepted/rejected suggestions, and AI errors in `ai_logs/phase1_ai_log.md` (using `ai_logs/phase1_ai_log_template.md`).
 
-### Guidelines for Pair B (Human-Only)
-* Implement analytical code independently without GenAI code generation or automated visual design.
-* Standard plotting tools (Matplotlib, Seaborn) are completely appropriate. Depth of reasoning and domain accuracy matter most.
+### Pair B (Human-Only Pair)
+- **Role:** Conducts the analysis independently without Generative AI assistance. Rely on standard data science libraries (Matplotlib, Seaborn, Pandas) and manual reasoning.
+- **Code Completion:** Standard IDE completion and reading official library documentation are permitted; code generation prompts are prohibited.
+- **Workspace:** Build your notebooks or scripts inside `notebooks/pair_b_human_only/`.
 
 ---
 
-## 4. Midpoint Deliverable Checklist (Deadline: 11.11.2026 23:59)
+## 5. Midpoint Deliverable Checklist (Deadline: 11.11.2026 23:59)
 
-1. **Code:**
-   * Pair A code / notebooks (`notebooks/pair_a_ai_aided/`).
-   * Pair B code / notebooks (`notebooks/pair_b_human_only/`).
+At the midpoint deadline, each group submits:
+
+1. **Code from Both Pairs:**
+   - Pair A code in `notebooks/pair_a_ai_aided/`.
+   - Pair B code in `notebooks/pair_b_human_only/`.
 2. **AI Interaction Record:**
-   * Completed `ai_logs/phase1_ai_log.md`.
-3. **5-Minute Progress Update Video:**
-   * *0:00–1:00:* Problem statement and Red Bull case motivation.
-   * *1:00–2:30:* Human-only pair findings and domain plots.
-   * *2:30–4:00:* AI-aided pair findings and interactive visualizations.
-   * *4:00–4:40:* AI4Vis reflection (where AI accelerated progress, where it hallucinated, what each pair missed).
-   * *4:40–5:00:* Phase II roadmap (White-box XAI, role switch).
-   * *Note: Exceeding 5 minutes results in point deductions.*
+   - Completed `ai_logs/phase1_ai_log.md` from the AI-aided pair.
+3. **Recorded Progress-Update Video (Max 5 Minutes):**
+   - *Minute 0:00–1:00:* Introduction to the problem, task, and dataset.
+   - *Minute 1:00–2:30:* Human-only pair findings and diagnostic charts.
+   - *Minute 2:30–4:00:* AI-aided pair findings and interactive visualizations.
+   - *Minute 4:00–4:40:* AI4Vis reflection (comparison of processes, AI acceleration vs human domain depth, observed AI failure patterns).
+   - *Minute 4:40–5:00:* Phase II preview (White-box analysis plan and pair role swap).
+   - *Warning: Exceeding 5 minutes results in a point deduction.*
