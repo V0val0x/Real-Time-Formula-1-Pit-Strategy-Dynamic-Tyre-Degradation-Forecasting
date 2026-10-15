@@ -1,0 +1,32 @@
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python byte-code & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+
+# IDE configurations
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# FastF1 raw session cache (heavy network chunks)
+data/cache/
+*.cache
+
+# Temporary / Matplotlib cache
+.matplotlib/
+/tmp/
