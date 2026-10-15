@@ -1,37 +1,36 @@
-# 🤖 AI Interaction Record (Phase I)
+# AI Interaction Record (Phase I)
 > **Team Name:** [Your Team Name]  
-> **Pair:** [Names of Students in AI-aided Pair]  
+> **Pair:** [Names of Students in AI-Aided Pair]  
 > **Phase:** I (Black-Box Behavior Investigation)
 
 ---
 
-## 📝 1. Prompt Log & Analytical Decisions
+## 1. Prompt Log & Analytical Decisions
 
-Заполняйте эту таблицу по мере работы над визуализациями:
-
-| # | Дата | Цель / Промпт (Prompt Summary) | Предложение ИИ (AI Suggestion) | Решение (Принято / Отклонено / Изменено) | Обоснование (Rationale) |
-|---|------|--------------------------------|-------------------------------|------------------------------------------|-------------------------|
-| 1 | 15.10 | «Напиши интерактивный график деградации на Plotly» | Предложил scatter plot с линиями | Изменено | Добавили выделение окон VSC и пороги обрыва шин |
-| 2 | ...  | ...                            | ...                           | ...                                      | ...                     |
+| # | Date | Prompt Summary | AI Suggestion | Decision (Accepted / Modified / Rejected) | Rationale |
+|---|------|----------------|---------------|--------------------------------------------|-----------|
+| 1 |      |                |               |                                            |           |
+| 2 |      |                |               |                                            |           |
 
 ---
 
-## ⚠️ 2. Паттерны ошибок и галлюцинаций ИИ (Observed Failure Patterns)
+## 2. Observed AI Failure Modes & Hallucinations
 
-Опишите случаи, когда Generative AI предлагал неверные решения, физически невозможные вещи или некорректный код:
+Document specific instances where the LLM produced incorrect logic, flawed physics, or broken code:
 
-1. **Пример 1:** 
-   * *Контекст:* Запрос на расчет дельты андерката.
-   * *Ошибка ИИ:* ИИ не учел, что шины Hard выезжают из боксов холодными и теряют до 2 секунд на первом круге.
-   * *Как исправили:* Вручную добавили формулу штрафа прогрева из `PitDynamicsModel`.
-2. **Пример 2:** 
-   * *Контекст:* ...
-   * *Ошибка ИИ:* ...
+1. **Instance 1:**
+   * *Context:*
+   * *AI Error:*
+   * *Resolution:*
+2. **Instance 2:**
+   * *Context:*
+   * *AI Error:*
+   * *Resolution:*
 
 ---
 
-## 💡 3. Выводы и лучшие практики (Best Practices for AI4Vis)
+## 3. Reflections & Emerging Best Practices
 
-* В каких задачах ИИ сэкономил максимальное количество времени (например, шаблон кода Plotly, верстка HTML/Streamlit)?
-* В каких вопросах ИИ был бесполезен или опасен без контроля человека?
-* Общий вывод: повысил ли ИИ глубину анализа или привел к поверхностным выводам?
+* **Strengths:** Where did GenAI provide genuine acceleration (e.g. boilerplate, syntax, widget layouts)?
+* **Limitations:** Where did GenAI fail or require significant human correction?
+* **Impact on Confidence:** Did GenAI assistance change confidence in the analytical conclusions?

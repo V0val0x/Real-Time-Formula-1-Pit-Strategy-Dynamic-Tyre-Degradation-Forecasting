@@ -1,108 +1,106 @@
-# 🏎️ Formula 1 Tyre Degradation & Real-Time Strategy System
+# Formula 1 Tyre Degradation & Real-Time Strategy System
 ### AI and Visualization Lab Project (JKU Linz - Fall 2026)
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![FastF1](https://img.shields.io/badge/telemetry-FastF1-red.svg)](https://github.com/theOehrly/Fast-F1)
 [![Course](https://img.shields.io/badge/course-AI%20%26%20Vis-brightgreen.svg)](https://jku-vds-lab.at/)
 
-This repository contains the end-to-end data pipeline, physics-informed machine learning models, and real-time contingency strategy engine for analyzing **tyre degradation and pit stop dynamics in Formula 1**, focusing on **Red Bull Racing (Max Verstappen vs Sergio Perez)** across the 2023–2024 seasons.
+An end-to-end telemetry pipeline, physics-informed machine learning model, and real-time contingency strategy engine for analyzing **tyre degradation and pit stop dynamics in Formula 1**, focused on **Red Bull Racing (Max Verstappen vs Sergio Perez)** across the 2023–2024 seasons.
 
 ---
 
-## 📂 Структура репозитория
+## Repository Structure
 
 ```
 AIandVis/
 ├── data/
 │   └── processed/
-│       └── f1_curated_telemetry.csv  # 9,202 реальных круга FastF1 по 7 Гран-при (единый датасет!)
+│       └── f1_curated_telemetry.csv  # 9,202 curated FastF1 laps across 7 Grand Prix
 ├── src/
 │   ├── data/
-│   │   └── f1_data.py               # Загрузчик FastF1 + генератор физически точных сценариев
+│   │   └── f1_data.py               # FastF1 loader and feature engineering pipeline
 │   ├── models/
-│   │   ├── tyre_model.py            # Модель деградации + детектор обрыва шин (Tyre Cliff)
-│   │   └── trained_tyre_model.joblib # Обученный артефакт модели (R² = 0.724, MAE = 0.68s)
+│   │   ├── tyre_model.py            # Physics-aware degradation model with cliff detector
+│   │   └── trained_tyre_model.joblib # Serialized model artifact (R² = 0.724, MAE = 0.68s)
 │   ├── strategy/
-│   │   ├── strategy_engine.py       # Движок реалтайм-стратегии с ветвлением («What-If»)
-│   │   └── pit_dynamics.py          # Моделирование потерь на пит-лейн и прогрева холодных шин
+│   │   ├── strategy_engine.py       # Real-time multi-branch strategy recommender
+│   │   └── pit_dynamics.py          # Pit-lane loss and cold tyre warm-up models
 │   └── simulation/
-│       └── race_simulator.py        # Пошаговый симулятор реплея телеметрии гонки
+│       └── race_simulator.py        # Lap-by-lap telemetry replay and strategy simulator
 ├── notebooks/
-│   ├── phase1_visual_analytics.py   # Диагностические графики невязок и таймлайна (Фаза I)
-│   └── red_bull_analysis.py         # Сравнительный анализ стилей пилотирования (VER vs PER)
+│   ├── phase1_visual_analytics.py   # Telemetry vs model behavior diagnostics
+│   └── red_bull_analysis.py         # Teammate comparison (VER vs PER)
 ├── ai_logs/
-│   └── phase1_ai_log_template.md    # Обязательный шаблон лога промптов для AI-aided пары
-├── visualizations/                  # Сгенерированные графики и аналитика
+│   └── phase1_ai_log_template.md    # Required prompt and reflection log for AI-aided pair
+├── visualizations/                  # Diagnostic plots and figures
 ├── scripts/
-│   ├── download_real_data.py        # Пакетная выгрузка данных FastF1
-│   └── train_model.py               # Обучение и валидация модели
-├── test_pipeline.py                 # Сквозной скрипт проверки работоспособности
-├── requirements.txt                 # Зафиксированные зависимости Python
-├── PHASE1_GUIDE.md                  # Подробное руководство по проведению Фазы I
+│   ├── download_real_data.py        # Batch telemetry download script
+│   └── train_model.py               # Model training and validation script
+├── test_pipeline.py                 # End-to-end verification and demonstration script
+├── requirements.txt                 # Python dependencies
+├── PHASE1_GUIDE.md                  # Comprehensive Phase I instructions
 └── README.md
 ```
 
 ---
 
-## 🚀 Быстрый старт (Инструкция для команды)
+## Quick Start
 
-### 1. Клонирование репозитория
+### 1. Clone Repository
 ```bash
-git clone <URL_ВАШЕГО_РЕПОЗИТОРИЯ>
-cd AIandVis
+git clone https://github.com/V0val0x/Real-Time-Formula-1-Pit-Strategy-Dynamic-Tyre-Degradation-Forecasting.git
+cd Real-Time-Formula-1-Pit-Strategy-Dynamic-Tyre-Degradation-Forecasting
 ```
 
-### 2. Настройка виртуального окружения
+### 2. Set Up Virtual Environment
 ```bash
-# Создание окружения
+# Create environment
 python3 -m venv .venv
 
-# Активация:
-# на macOS / Linux:
-source .venv/bin/activate
-# на Windows:
-# .venv\Scripts\activate
+# Activate environment
+source .venv/bin/activate  # macOS / Linux
+# .venv\Scripts\activate   # Windows
 
-# Установка зависимостей
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-> **Обратите внимание:** Датасет (`data/processed/f1_curated_telemetry.csv`) и обученная модель (`src/models/trained_tyre_model.joblib`) **уже включены в репозиторий**. Никому из членов команды не нужно ничего скачивать часами или заново тренировать — всё готово к анализу из коробки!
+> **Note:** The preprocessed dataset (`data/processed/f1_curated_telemetry.csv`) and the trained model (`src/models/trained_tyre_model.joblib`) are included in the repository. Both pairs start with identical data and model artifacts without needing to run initial downloads.
 
 ---
 
-## 💻 Запуск основных скриптов
+## Execution
 
-### 1. Симуляция гонки в реальном времени:
+### Real-Time Race Simulation
+Replays the 2023 Bahrain GP for Max Verstappen, dynamically evaluating pit windows, Safety Car opportunities, and competitor undercut threats:
 ```bash
 python test_pipeline.py
 ```
-*Запускает покруговой реплей Гран-при Бахрейна для Макса Ферстаппена с динамической реакцией на Safety Car, смену шин соперников и риски андерката.*
 
-### 2. Сравнение пилотов Red Bull (VER vs PER):
+### Red Bull Teammate Comparison (VER vs PER)
+Generates degradation profiles and residual distributions comparing Verstappen and Perez:
 ```bash
 python notebooks/red_bull_analysis.py
 ```
-*Строит графики деградации шин и невязок модели для Ферстаппена и Переса на шинах Medium.*
 
-### 3. Диагностика поведения модели для Фазы I:
+### Phase I Behavioral Diagnostics
+Generates multi-panel telemetry vs prediction curves and strategy pivot timelines:
 ```bash
 python notebooks/phase1_visual_analytics.py
 ```
-*Строит профиль телеметрии, график ошибок Residuals и таймлайн стратегии.*
 
 ---
 
-## 📖 Руководство по выполнению Фазы I
+## Phase I Investigation Guide
 
-Подробные инструкции по разделению на **AI-aided** и **Human-only** пары, правилам использования ИИ, исследовательским гипотезам и структуре 5-минутного видео описаны в файле:
+Detailed research questions, pair division protocols (AI-Aided vs Human-Only), and midpoint video deliverables are documented in:  
 👉 **[PHASE1_GUIDE.md](PHASE1_GUIDE.md)**
 
 ---
 
-## 📅 Ключевые дедлайны курса
+## Key Deadlines
 
-* **21.10.2026 (23:59):** Регистрация группы из 4 человек на портале курса.
-* **28.10.2026 (23:59):** Регистрация задачи и модели (Task Selection).
-* **11.11.2026 (23:59):** **Midpoint Submission (Фаза I)** — код обеих пар, AI-лог, 5-минутное видео.
-* **09.12.2026 (23:59):** **Final Submission (Фаза II)** — полный код, итоговые логи, 10-минутная презентация.
+* **21.10.2026 (23:59):** Group formation registration.
+* **28.10.2026 (23:59):** Task & model selection submission.
+* **11.11.2026 (23:59):** **Midpoint Submission (Phase I)** — code, AI logs, 5-min update video.
+* **09.12.2026 (23:59):** **Final Submission (Phase II)** — full code, all logs, 10-min presentation.

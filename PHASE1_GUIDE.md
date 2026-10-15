@@ -1,86 +1,80 @@
-# 🏎️ Phase I Visual Analytics Guide (Vis4AI & AI4Vis)
+# Phase I Visual Analytics Guide (Vis4AI & AI4Vis)
 > **Course:** AI and Visualization (JKU Linz)  
 > **Topic:** Real-Time Formula 1 Pit Strategy & Dynamic Tyre Degradation Forecasting (Red Bull Racing Case Study)  
 > **Midpoint Deadline (Phase I Submission):** 11.11.2026 (23:59)
 
 ---
 
-## 📌 1. Цель и ключевой вопрос Фазы I
-**Вопрос Фазы I:** *«How does the model behave?» (Как ведет себя модель?)*
+## 1. Goal and Core Question
+**Phase I Question:** *How does the model behave?*
 
-В этой фазе модель рассматривается как **«черный ящик» (black-box)**: мы не смотрим на внутренние веса, а исследуем взаимосвязь между входными параметрами гонки и выходными предсказаниями времени круга / стратегии пит-стопов.
+The model is investigated as a **black box**: internal weights and representations are ignored for now, focusing strictly on inputs, outputs, prediction residuals, and strategic decisions.
 
-> ⚠️ **Главное правило от преподавателей:**  
-> Визуализация — это **исследовательский инструмент** (investigative tool), а не отчет об общей точности. Графики вроде «наша модель имеет MAE = 0.68 сек» или простая таблица метрик **не принимаются**. Вы должны вскрывать систематические паттерны ошибок, аномалии и скрытые смещения.
-
----
-
-## 🎯 2. Исследовательские вопросы для анализа (Hypotheses to Explore)
-
-1. **Предвзятость к пилотам (Driver Bias: VER vs PER):**
-   * В одинаковых болидах Red Bull RB19/RB20 — как модель оценивает деградацию Макса Ферстаппена и Серхио Переса?
-   * *Инсайт:* Модель систематически переоценивает износ Ферстаппена в чистом воздухе (невязка $+0.34$ с) и хуже улавливает перегрев шин у Переса в трафике.
-2. **Поведение на краевых событиях (Safety Car & VSC):**
-   * Как модель реагирует на круги под машиной безопасности? Понимает ли она разницу между номинальным возрастом комплекта и эффективным износом?
-3. **Нелинейный «обрыв шин» (Tyre Cliff):**
-   * На каких кругах для Soft, Medium и Hard наступает резкое падение сцепления? Насколько точно модель предсказывает этот момент до наступления катастрофической потери темпа?
-4. **Заезд/выезд из боксов и холодные шины (Pit Dynamics & Cold Tyre Warm-up):**
-   * Где модель ошибается сильнее всего: на кругах заезда (in-lap) или кругах прогрева (out-lap)? Влияет ли холодный асфальт ($< 28^\circ\text{C}$) на ошибку прогноза для жестких шин Hard?
+> **Course Guideline:**  
+> Visualization is an investigative tool, not a benchmark summary. A simple table of metrics (e.g. MAE or R²) is insufficient. The visualizations must expose systematic behavioral patterns, error clusters, and domain-specific anomalies.
 
 ---
 
-## 👥 3. Разделение ролей между двумя парами (AI4Vis)
+## 2. Research Questions & Hypotheses
 
-Вся четверка использует **одинаковый датасет** (`data/processed/f1_curated_telemetry.csv`) и **одинаковую модель** (`src/models/trained_tyre_model.joblib`), но подход к визуализации строго разделяется:
+1. **Driver Bias (VER vs PER):**
+   * How does the model perform on identical Red Bull machinery (RB19/RB20) across different driving styles?
+   * *Observation:* The model overestimates degradation for Verstappen in clean air (mean residual +0.34s) while showing higher variance for Perez fighting in traffic.
+2. **Disturbance Robustness (Safety Car & VSC):**
+   * Does the model differentiate nominal tyre age from effective wear during caution periods?
+3. **Non-Linear Tyre Cliff:**
+   * At which tyre life do Soft, Medium, and Hard compounds reach their performance cliff? Does the model flag cliffs before irreversible pace loss?
+4. **Pit Cycle & Cold Tyre Dynamics:**
+   * Where are prediction residuals concentrated: on in-lap deceleration or out-lap cold tyre warm-up? How does track temperature (< 28°C) affect Hard compound warm-up errors?
+
+---
+
+## 3. Pair Protocols (AI4Vis Track)
+
+Both pairs use the same processed dataset (`data/processed/f1_curated_telemetry.csv`) and trained model (`src/models/trained_tyre_model.joblib`), but execute the visual analysis independently.
 
 ```
                       ┌──────────────────────────────────────────────┐
-                      │             Общий фундамент:                │
-                      │ 9 202 круга F1 + Обученная модель деградации │
+                      │                Shared Base:                  │
+                      │  9,202 F1 Laps Telemetry + Trained ML Model  │
                       └──────────────────────┬───────────────────────┘
                                              │
                      ┌───────────────────────┴───────────────────────┐
                      ▼                                               ▼
        ┌───────────────────────────┐                   ┌───────────────────────────┐
-       │   Пара А: AI-Aided        │                   │   Пара Б: Human-Only      │
-       │   (с Генеративным ИИ)     │                   │   (без Генеративного ИИ)  │
+       │     Pair A: AI-Aided      │                   │    Pair B: Human-Only     │
        ├───────────────────────────┤                   ├───────────────────────────┤
-       │ • Использование LLM       │                   │ • Собственный интеллект   │
-       │   (ChatGPT / Claude)      │                   │ • Только автокомплит и    │
-       │ • Богатый интерактив:     │                   │   документация            │
-       │   Streamlit / Plotly      │                   │ • Стандартные библиотеки: │
-       │ • Ползунки, фильтры       │                   │   Matplotlib / Seaborn    │
-       │ • ОБЯЗАТЕЛЬНЫЙ лог ИИ     │                   │ • Глубокий анализ физики  │
-       │   в ai_logs/              │                   │   и телеметрии по секторам│
+       │ • Uses Generative AI      │                   │ • No GenAI for code or    │
+       │   (ChatGPT / Claude)      │                   │   visual design           │
+       │ • Rich interactive UIs    │                   │ • Light code completion   │
+       │   (Plotly / Streamlit)    │                   │   and docs search allowed │
+       │ • Mandatory AI log in     │                   │ • Static / exploratory    │
+       │   ai_logs/                │                   │   plots (Matplotlib/Seaborn)
        └───────────────────────────┘                   └───────────────────────────┘
 ```
 
-### Регламент для Пары А (AI-aided):
-* Используйте LLM для генерации гипотез, кода интерактивных дашбордов и поиска зависимостей.
-* Преподаватели ждут от вас **более сложного интерактива** (например, веб-приложение на Streamlit с выбором гонщика и трассы).
-* **Обязательно ведите журнал взаимодействий:** заполняйте файл `ai_logs/phase1_ai_log.md` (шаблон готов в репозитории).
+### Guidelines for Pair A (AI-Aided)
+* Use Generative AI for hypothesis ideation, dashboard development, and interactive controls.
+* Higher interaction fidelity (interactive widgets, dynamic filters) is expected.
+* **Mandatory AI Log:** Document key prompts, accepted/rejected suggestions, and failure modes in `ai_logs/phase1_ai_log.md` using the provided template.
 
-### Регламент для Пары Б (Human-only):
-* Пишите код самостоятельно. Разрешен обычный автокомплит в IDE и поиск в документации.
-* **Запрещено:** генерировать графики нейросетями, просить ИИ придумать дизайн визуализации или интерпретировать график за вас.
-* Если ваши графики будут более классическими (статичные срезы Matplotlib) — это нормально и за это не снижают баллы. Главное — глубина анализа и доменная честность.
+### Guidelines for Pair B (Human-Only)
+* Implement analytical code independently without GenAI code generation or automated visual design.
+* Standard plotting tools (Matplotlib, Seaborn) are completely appropriate. Depth of reasoning and domain accuracy matter most.
 
 ---
 
-## 📋 4. Чек-лист сдачи Midpoint Submission (до 11.11.2026 23:59)
+## 4. Midpoint Deliverable Checklist (Deadline: 11.11.2026 23:59)
 
-К дедлайну команда должна загрузить:
-1. **Код обеих пар:**
-   * Ноутбуки/скрипты Пары А (в папке `notebooks/pair_a_ai_aided/`).
-   * Ноутбуки/скрипты Пары Б (в папке `notebooks/pair_b_human_only/`).
-2. **Лог взаимодействия с ИИ (`ai_logs/phase1_ai_log.md`):**
-   * Список важных промптов.
-   * Ошибки/галлюцинации ИИ (например, если ИИ забыл про прогрев шин).
-   * Что было принято, отклонено или доработано.
-3. **Видеозапись до 5 минут (Progress-update video):**
-   * *0:00 – 1:00:* Введение в задачу (деградация шин Red Bull и стратегия пит-стопов).
-   * *1:00 – 2:30:* Что нашла и визуализировала Пара Б (Human-only).
-   * *2:30 – 4:00:* Что сделала Пара А (AI-aided, показ интерактива).
-   * *4:00 – 4:40:* Сравнение AI4Vis: чем помог ИИ, где создал лишнюю работу, какие инсайты упустил человек / ИИ.
-   * *4:40 – 5:00:* План перехода к Фазе II (White-Box, SHAP, LIME) со сменой ролей.
-   * ⚠️ *Превышение 5 минут штрафуется баллами!*
+1. **Code:**
+   * Pair A code / notebooks (`notebooks/pair_a_ai_aided/`).
+   * Pair B code / notebooks (`notebooks/pair_b_human_only/`).
+2. **AI Interaction Record:**
+   * Completed `ai_logs/phase1_ai_log.md`.
+3. **5-Minute Progress Update Video:**
+   * *0:00–1:00:* Problem statement and Red Bull case motivation.
+   * *1:00–2:30:* Human-only pair findings and domain plots.
+   * *2:30–4:00:* AI-aided pair findings and interactive visualizations.
+   * *4:00–4:40:* AI4Vis reflection (where AI accelerated progress, where it hallucinated, what each pair missed).
+   * *4:40–5:00:* Phase II roadmap (White-box XAI, role switch).
+   * *Note: Exceeding 5 minutes results in point deductions.*

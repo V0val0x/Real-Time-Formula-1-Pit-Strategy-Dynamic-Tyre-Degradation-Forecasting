@@ -152,16 +152,24 @@ class TyreDegradationModel:
         effective_tyre_life: float,
         track_temp: float,
         fuel_remaining_kg: float,
+        driver: str = "VER",
         is_sc: bool = False,
         is_vsc: bool = False,
         is_out_lap: bool = False,
     ) -> float:
         """Computes absolute expected lap time based on compound baseline + predicted delta."""
         base = self.baseline_times.get(compound.upper(), 92.0)
-        # Fuel burn benefit relative to 105kg: ~0.035s / kg
         fuel_delta = (fuel_remaining_kg - 105.0) * 0.035
         deg = self.predict_delta(
-            compound, tyre_life, effective_tyre_life, track_temp, fuel_remaining_kg, is_sc, is_vsc, is_out_lap
+            compound=compound,
+            tyre_life=tyre_life,
+            effective_tyre_life=effective_tyre_life,
+            track_temp=track_temp,
+            fuel_remaining_kg=fuel_remaining_kg,
+            driver=driver,
+            is_sc=is_sc,
+            is_vsc=is_vsc,
+            is_out_lap=is_out_lap,
         )
         return base + fuel_delta + deg
 
