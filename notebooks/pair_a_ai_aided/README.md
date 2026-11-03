@@ -10,3 +10,4 @@ Welcome to the **AI-Aided** workspace for Phase I.
 ## Starter Files
 - `phase1_visual_analytics.py`: Telemetry vs model degradation curves and strategy timeline.
 - `red_bull_analysis.py`: Head-to-head comparison of VER vs PER on Medium tyres.
+- `interactive_dashboard.py` + `dashboard_template.html`: builds `visualizations/phase1_interactive_dashboard.html`, a four-tab interactive dashboard (one tab per research question) with filters, sliders and what-if probes. Run `python notebooks/pair_a_ai_aided/interactive_dashboard.py` from the repo root; install `plotly` too if you want plotly.js inlined so the page works offline.

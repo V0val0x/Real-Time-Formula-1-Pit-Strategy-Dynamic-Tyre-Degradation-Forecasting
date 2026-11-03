@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tyre model under the microscope · Phase I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+:root {
+  --bg: #e9ecef;
+  --panel: #ffffff;
+  --ink: #1b2129;
+  --muted: #5d6874;
+  --rule: #c9cfd6;
+  --grid: #e3e7eb;
+  --soft: #d6262b;
+  --medium: #e0b000;
+  --hard: #7d8792;
+  --ver: #2952cc;
+  --per: #0e9a9a;
+  --field: #a3acb6;
+  --flag: rgba(224, 176, 0, 0.18);
+  --focus: #2952cc;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181d; --panel: #1c2128; --ink: #e8ebee; --muted: #9aa5b1; --rule: #333b45;
+    --grid: #2a313a; --soft: #ff4b4f; --medium: #ffd23f; --hard: #e6e9ec; --ver: #6d8cff;
+    --per: #2fd0cf; --field: #5f6974; --flag: rgba(255, 210, 63, 0.14); --focus: #6d8cff;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 15px/1.5 "Barlow", "Segoe UI", system-ui, sans-serif;
+}
+header {
+  padding: 28px clamp(16px, 4vw, 48px) 0;
+  display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; align-items: end;
+}
+h1 {
+  font: 700 clamp(30px, 4.4vw, 52px)/0.95 "Barlow Condensed", "Arial Narrow", sans-serif;
+  margin: 0; letter-spacing: -0.01em;
+}
+.stripe { display: flex; height: 8px; width: 132px; margin-bottom: 14px; }
+.stripe span { flex: 1; }
+.stripe span:nth-child(1) { background: var(--soft); }
+.stripe span:nth-child(2) { background: var(--medium); }
+.stripe span:nth-child(3) { background: var(--hard); }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 70ch; }
+.stamp { color: var(--muted); font-size: 13px; text-align: right; }
+nav {
+  display: flex; gap: 2px; margin: 22px clamp(16px, 4vw, 48px) 0;
+  border-bottom: 2px solid var(--ink); overflow-x: auto;
+}
+nav button {
+  font: 600 18px/1 "Barlow Condensed", "Arial Narrow", sans-serif;
+  background: transparent; color: var(--muted); border: 0; padding: 12px 16px 10px;
+  cursor: pointer; white-space: nowrap; border-radius: 4px 4px 0 0;
+}
+nav button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+main { padding: 0 clamp(16px, 4vw, 48px) 48px; }
+section[hidden] { display: none; }
+.question {
+  font: 600 22px/1.2 "Barlow Condensed", "Arial Narrow", sans-serif; margin: 22px 0 4px;
+}
+.controls {
+  display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center;
+  padding: 12px 0 16px; border-bottom: 1px solid var(--rule); margin-bottom: 18px;
+  font-size: 14px;
+}
+.controls label { display: flex; gap: 8px; align-items: center; color: var(--muted); }
+.controls output { color: var(--ink); font-weight: 600; min-width: 4ch; font-variant-numeric: tabular-nums; }
+select, input[type="range"] { font: inherit; color: var(--ink); }
+select { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 6px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 18px; }
+figure { margin: 0; background: var(--panel); border-radius: 6px; padding: 14px 14px 10px; border: 1px solid var(--rule); }
+figure.wide { grid-column: 1 / -1; }
+figcaption { font-size: 14px; color: var(--muted); max-width: 78ch; }
+figcaption b { color: var(--ink); font-weight: 600; display: block; font-size: 15px; margin-bottom: 2px; }
+.plot { width: 100%; height: 360px; margin-top: 8px; }
+.wide .plot { height: 400px; }
+.note {
+  border-left: 4px solid var(--medium); padding: 8px 14px; margin: 0 0 18px; max-width: 90ch;
+  background: var(--flag); font-size: 14px;
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="stripe" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h1>The tyre model, probed from the outside</h1>
+    <p class="sub">Phase I black-box study of the shared degradation model. Every chart uses only the model’s inputs, its predictions and its errors, plus what-if replays where one input is changed and everything else is held fixed.</p>
+  </div>
+  <div class="stamp" id="stamp"></div>
+</header>
+
+<nav role="tablist" aria-label="Research questions">
+  <button role="tab" aria-selected="true" data-tab="driver">Verstappen vs Pérez</button>
+  <button role="tab" aria-selected="false" data-tab="compound">Compounds and cliffs</button>
+  <button role="tab" aria-selected="false" data-tab="sc">Safety car periods</button>
+  <button role="tab" aria-selected="false" data-tab="pit">Pit laps and temperature</button>
+</nav>
+
+<main>
+<!-- Driver -->
+<section id="tab-driver" role="tabpanel">
+  <p class="question">Does the model treat the two Red Bull drivers differently in identical machinery?</p>
+  <div class="controls">
+    <label>Race <select id="d-race"></select></label>
+    <label>Laps <select id="d-type">
+      <option value="Green">Green-flag only</option>
+      <option value="All">All laps</option>
+      <option value="Pit">In-laps and out-laps</option>
+    </select></label>
+    <label><input type="checkbox" id="d-field"> Show rest of field</label>
+  </div>
+  <div class="grid">
+    <figure><figcaption><b>Error distribution by driver</b>Residual = measured degradation minus predicted. Above zero means the model was too optimistic about the lap.</figcaption><div class="plot" id="d-violin"></div></figure>
+    <figure><figcaption><b>Mean error per race</b>A bar far from zero for one driver only points to a driver-specific blind spot in that race.</figcaption><div class="plot" id="d-race-bars"></div></figure>
+    <figure class="wide"><figcaption><b>Lap-by-lap trace</b>Measured (solid) vs predicted (dotted) degradation for both drivers. Pick a single race above.</figcaption><div class="plot" id="d-trace"></div></figure>
+    <figure class="wide"><figcaption><b>What if the other driver had done the same lap?</b>Each lap is re-predicted with only the driver flag switched. If the model ignored the driver, this would be a spike at zero. Note the flag is “Verstappen or not”, so “Pérez” here means “not Verstappen”.</figcaption><div class="plot" id="d-flip"></div></figure>
+  </div>
+</section>
+
+<!-- Compounds -->
+<section id="tab-compound" role="tabpanel" hidden>
+  <p class="question">How do the predicted degradation curves and cliffs differ between soft, medium and hard?</p>
+  <div class="controls">
+    <label>Track temp <input type="range" id="c-temp" min="0" max="11" step="1" value="5"><output id="c-temp-out"></output></label>
+    <label>Fuel at stint start <select id="c-fuel"></select></label>
+    <label>Driver flag <select id="c-drv"><option>VER</option><option value="PER">Not VER</option></select></label>
+    <label>Cliff threshold <input type="range" id="c-thr" min="0.1" max="0.6" step="0.02" value="0.22"><output id="c-thr-out"></output></label>
+    <label><input type="checkbox" id="c-obs" checked> Overlay measured averages</label>
+  </div>
+  <div class="grid">
+    <figure class="wide"><figcaption><b>Predicted degradation over a fresh stint</b>Green-flag laps, fuel burning at 1.8 kg per lap as in the cliff detector. Diamonds mark the first lap where the predicted loss grows by more than the threshold in one lap. Dots are measured averages across all races (any temperature or fuel).</figcaption><div class="plot" id="c-curves"></div></figure>
+    <figure><figcaption><b>Laps until the cliff, by current tyre age</b>Output of the strategy engine’s own cliff detector (fixed 0.22 s threshold). The shaded band is where the engine treats a cliff as imminent (two laps or fewer).</figcaption><div class="plot" id="c-cliff"></div></figure>
+    <figure><figcaption><b>Cliff timing across temperatures</b>Same detector for one compound, every temperature at once. <select id="c-heat-comp" aria-label="Compound for heatmap"><option>SOFT</option><option selected>MEDIUM</option><option>HARD</option></select></figcaption><div class="plot" id="c-heat"></div></figure>
+  </div>
+</section>
+
+<!-- Safety car -->
+<section id="tab-sc" role="tabpanel" hidden>
+  <p class="question">How does the model respond to safety car and VSC periods, when the tyres wear less?</p>
+  <div class="controls">
+    <label>Race <select id="s-race"></select></label>
+    <label>Driver <select id="s-drv"></select></label>
+  </div>
+  <div class="grid">
+    <figure><figcaption><b>How slow the laps really were vs what the model was trained on</b>Measured slowdown is lap time minus the driver’s median green-flag lap in that race. The training label is the DegradationDelta column the model learned from.</figcaption><div class="plot" id="s-label"></div></figure>
+    <figure><figcaption><b>What if a normal lap were run under SC or VSC?</b>Every green-flag lap is re-predicted with only the SC or VSC flag switched on.</figcaption><div class="plot" id="s-flip"></div></figure>
+    <figure class="wide"><figcaption><b>Race timeline</b>Shaded bands are SC (darker) and VSC (lighter) laps. Compare the lap-time line with the label and the prediction during those bands.</figcaption><div class="plot" id="s-trace"></div></figure>
+  </div>
+</section>
+
+<!-- Pit + temp -->
+<section id="tab-pit" role="tabpanel" hidden>
+  <p class="question">How do errors behave on in-laps and out-laps, and does track temperature matter?</p>
+  <div class="controls">
+    <label>Drivers <select id="p-scope"><option value="all">Whole field</option><option value="rb">Red Bull only</option></select></label>
+    <label>Compound <select id="p-comp"><option>All</option><option>SOFT</option><option>MEDIUM</option><option>HARD</option></select></label>
+    <label>Colour scatter by <select id="p-color"><option value="race">Race</option><option value="compound">Compound</option></select></label>
+  </div>
+  <div class="grid">
+    <figure><figcaption><b>Error by lap type</b>Same residual as before, split by what kind of lap it was. The model has an out-lap input but no in-lap input.</figcaption><div class="plot" id="p-box"></div></figure>
+    <figure><figcaption><b>Measured label on pit laps</b>Share of in-laps and out-laps whose training label is exactly zero, next to the measured slowdown on those laps.</figcaption><div class="plot" id="p-zero"></div></figure>
+    <figure><figcaption><b>Error vs track temperature</b>Green-flag laps. Colour by race to see whether temperature and track can be told apart in this data.</figcaption><div class="plot" id="p-scatter"></div></figure>
+    <figure><figcaption><b>Temperature sweep</b>Lines: average prediction when every green lap is replayed at one fixed temperature. Points: measured average per race, placed at that race’s median temperature.</figcaption><div class="plot" id="p-pdp"></div></figure>
+  </div>
+</section>
+</main>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+/* ---------- data prep ---------- */
+const C = Object.fromEntries(DATA.cols.map((c, i) => [c, i]));
+const LAPS = DATA.laps.map(r => ({
+  race: r[C.RaceKey], drv: r[C.Driver], lap: r[C.LapNumber], comp: r[C.Compound],
+  life: r[C.TyreLife], eff: r[C.EffectiveTyreLife], temp: r[C.TrackTemp], fuel: r[C.FuelRemainingKg],
+  type: r[C.LapType], time: r[C.LapTimeSeconds], label: r[C.DegradationDelta], pred: r[C.Pred],
+  res: r[C.Residual], flip: r[C.PredFlip], sc: r[C.PredSC], vsc: r[C.PredVSC]
+}));
+// driver's median green-flag lap per race -> "measured slowdown"
+const medGreen = {};
+(() => {
+  const buckets = {};
+  LAPS.forEach(l => { if (l.type === "Green") (buckets[l.race + "|" + l.drv] ??= []).push(l.time); });
+  for (const k in buckets) { const a = buckets[k].sort((x, y) => x - y); medGreen[k] = a[Math.floor(a.length / 2)]; }
+  LAPS.forEach(l => { const m = medGreen[l.race + "|" + l.drv]; l.slow = m ? l.time - m : null; });
+})();
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const mean = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
+const RACES = DATA.meta.races;
+const RACE_COLORS = ["#2952cc", "#d6262b", "#0e9a9a", "#8e44ad", "#e07b00", "#3d8b37", "#b03a76", "#6b7a8f"];
+const compColor = c => css(c === "SOFT" ? "--soft" : c === "MEDIUM" ? "--medium" : "--hard");
+const drvColor = d => d === "VER" ? css("--ver") : d === "PER" ? css("--per") : css("--field");
+
+function layout(extra = {}) {
+  const ink = css("--ink"), grid = css("--grid"), muted = css("--muted");
+  const base = {
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "Barlow, Segoe UI, sans-serif", color: ink, size: 13 },
+    margin: { l: 56, r: 16, t: 10, b: 48 },
+    legend: { orientation: "h", y: 1.1, x: 0, font: { color: muted } },
+    hoverlabel: { font: { family: "Barlow, sans-serif" } }
+  };
+  const axis = { gridcolor: grid, zerolinecolor: muted, linecolor: grid, tickfont: { color: muted }, title: { font: { color: muted } } };
+  const out = { ...base, ...extra };
+  for (const ax of ["xaxis", "yaxis"]) out[ax] = { ...axis, ...(extra[ax] || {}), title: { ...axis.title, text: (extra[ax] || {}).title || "" } };
+  return out;
+}
+const CFG = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"] };
+const draw = (id, traces, lay) => Plotly.react(id, traces, layout(lay), CFG);
+
+function fillSelect(el, items, labels) {
+  el.innerHTML = items.map((v, i) => `<option value="${v}">${labels ? labels[i] : v}</option>`).join("");
+}
+
+/* ---------- tab 1: drivers ---------- */
+const dRace = document.getElementById("d-race");
+fillSelect(dRace, ["All", ...RACES], ["All races", ...RACES]);
+function typeFilter(v) {
+  return v === "All" ? () => true : v === "Pit" ? l => l.type === "In-lap" || l.type === "Out-lap" : l => l.type === v;
+}
+function renderDriver() {
+  const race = dRace.value, tf = typeFilter(document.getElementById("d-type").value);
+  const showField = document.getElementById("d-field").checked;
+  const base = LAPS.filter(l => tf(l) && (race === "All" || l.race === race));
+  const groups = showField ? ["VER", "PER", "Field"] : ["VER", "PER"];
+  const grp = l => l.drv === "VER" || l.drv === "PER" ? l.drv : "Field";
+
+  draw("d-violin", groups.map(g => {
+    const ys = base.filter(l => grp(l) === g).map(l => l.res);
+    return { type: "violin", y: ys, name: `${g === "Field" ? "Rest of field" : g} (n=${ys.length})`,
+      line: { color: drvColor(g) }, box: { visible: true }, meanline: { visible: true }, points: false, spanmode: "hard" };
+  }), { yaxis: { title: "Residual (s)", range: [-4, 6] }, showlegend: false });
+
+  const rb = LAPS.filter(l => tf(l));
+  draw("d-race-bars", groups.map(g => ({
+    type: "bar", name: g === "Field" ? "Rest of field" : g, marker: { color: drvColor(g) },
+    x: RACES, y: RACES.map(r => mean(rb.filter(l => l.race === r && grp(l) === g).map(l => l.res)))
+  })), { barmode: "group", yaxis: { title: "Mean residual (s)" }, xaxis: { tickangle: -30 }, margin: { l: 56, r: 16, t: 10, b: 84 } });
+
+  const tr = race === "All" ? RACES[0] : race;
+  const traces = [];
+  ["VER", "PER"].forEach(d => {
+    const ls = LAPS.filter(l => l.race === tr && l.drv === d).sort((a, b) => a.lap - b.lap);
+    traces.push({ x: ls.map(l => l.lap), y: ls.map(l => l.label), name: `${d} measured`, mode: "lines", line: { color: drvColor(d), width: 2 } });
+    traces.push({ x: ls.map(l => l.lap), y: ls.map(l => l.pred), name: `${d} predicted`, mode: "lines", line: { color: drvColor(d), dash: "dot", width: 2 } });
+  });
+  draw("d-trace", traces, { xaxis: { title: `Lap · ${tr}` }, yaxis: { title: "Degradation (s)", range: [-0.2, 6] } });
+
+  draw("d-flip", ["VER", "PER"].map(d => ({
+    type: "histogram", name: d === "VER" ? "VER laps, re-predicted as not-VER" : "PER laps, re-predicted as VER",
+    x: base.filter(l => l.drv === d).map(l => l.flip - l.pred), opacity: 0.75, marker: { color: drvColor(d) }, xbins: { size: 0.05 }
+  })), { barmode: "overlay", xaxis: { title: "Prediction change from flipping the driver flag (s)", range: [-1.5, 1.5] }, yaxis: { title: "Laps" } });
+}
+["d-race", "d-type", "d-field"].forEach(id => document.getElementById(id).addEventListener("change", renderDriver));
+
+/* ---------- tab 2: compounds ---------- */
+const temps = DATA.meta.temps, fuels = DATA.meta.fuels;
+const cTemp = document.getElementById("c-temp"), cFuel = document.getElementById("c-fuel"), cThr = document.getElementById("c-thr");
+cTemp.max = temps.length - 1;
+fillSelect(cFuel, fuels, fuels.map(f => `${f} kg`));
+const observed = {};
+["SOFT", "MEDIUM", "HARD"].forEach(c => {
+  const b = {};
+  LAPS.forEach(l => { if (l.comp === c && l.type === "Green" && l.life <= DATA.meta.maxLife) (b[l.life] ??= []).push(l.label); });
+  const lifes = Object.keys(b).map(Number).filter(k => b[k].length >= 8).sort((x, y) => x - y);
+  observed[c] = { x: lifes, y: lifes.map(k => mean(b[k])), n: lifes.map(k => b[k].length) };
+});
+function renderCompound() {
+  const t = temps[+cTemp.value], f = +cFuel.value, drv = document.getElementById("c-drv").value, thr = +cThr.value;
+  document.getElementById("c-temp-out").textContent = `${t} °C`;
+  document.getElementById("c-thr-out").textContent = `${thr.toFixed(2)} s`;
+  const xs = Array.from({ length: DATA.meta.maxLife }, (_, i) => i + 1);
+  const traces = [];
+  ["SOFT", "MEDIUM", "HARD"].forEach(c => {
+    const ys = DATA.curves[`${c}|${t}|${f}|${drv}`];
+    traces.push({ x: xs, y: ys, name: c.toLowerCase(), mode: "lines", line: { color: compColor(c), width: 3 } });
+    const cl = ys.findIndex((y, i) => i > 0 && y - ys[i - 1] >= thr);
+    if (cl > 0) traces.push({ x: [xs[cl]], y: [ys[cl]], mode: "markers", showlegend: false, hovertemplate: `${c.toLowerCase()} cliff at lap %{x}<extra></extra>`,
+      marker: { symbol: "diamond", size: 13, color: compColor(c), line: { color: css("--ink"), width: 1.5 } } });
+    if (document.getElementById("c-obs").checked) traces.push({ x: observed[c].x, y: observed[c].y, customdata: observed[c].n, mode: "markers", name: `${c.toLowerCase()} measured`,
+      marker: { color: compColor(c), size: 6, opacity: 0.55 }, hovertemplate: "tyre life %{x}: %{y:.2f} s (n=%{customdata})<extra></extra>" });
+  });
+  draw("c-curves", traces, { xaxis: { title: "Tyre life (laps)" }, yaxis: { title: "Predicted degradation (s)" } });
+
+  const cliffTraces = ["SOFT", "MEDIUM", "HARD"].map(c => ({
+    x: DATA.meta.startAges, y: DATA.cliffs[`${c}|${t}|${f}`].laps, name: c.toLowerCase(), mode: "lines+markers",
+    line: { color: compColor(c), width: c === "MEDIUM" ? 4 : 2, dash: c === "HARD" ? "dot" : "solid", shape: "hv" }, marker: { size: 5, symbol: c === "SOFT" ? "circle" : c === "MEDIUM" ? "square" : "diamond" }
+  }));
+  draw("c-cliff", cliffTraces, { xaxis: { title: "Current tyre age (laps)" }, yaxis: { title: "Laps until predicted cliff", range: [0, 37] },
+    shapes: [{ type: "rect", xref: "paper", x0: 0, x1: 1, y0: 0, y1: 2.5, fillcolor: css("--soft"), opacity: 0.12, line: { width: 0 } }] });
+  renderHeat();
+}
+function renderHeat() {
+  const c = document.getElementById("c-heat-comp").value, f = +cFuel.value;
+  draw("c-heat", [{ type: "heatmap", x: DATA.meta.startAges, y: temps.map(t => `${t} °C`), z: temps.map(t => DATA.cliffs[`${c}|${t}|${f}`].laps),
+    colorscale: [[0, css("--soft")], [0.15, css("--medium")], [1, css("--panel")]], zmin: 0, zmax: 35,
+    colorbar: { title: { text: "laps", side: "right" }, thickness: 12 }, hovertemplate: "age %{x}, %{y}: cliff in %{z} laps<extra></extra>" }],
+    { xaxis: { title: "Current tyre age (laps)" }, yaxis: { title: "" }, margin: { l: 60, r: 10, t: 10, b: 48 } });
+}
+["c-temp", "c-fuel", "c-drv", "c-thr", "c-obs"].forEach(id => document.getElementById(id).addEventListener("input", renderCompound));
+document.getElementById("c-heat-comp").addEventListener("change", renderHeat);
+
+/* ---------- tab 3: safety car ---------- */
+const scRaces = RACES.filter(r => LAPS.some(l => l.race === r && (l.type === "SC" || l.type === "VSC")));
+const sRace = document.getElementById("s-race"), sDrv = document.getElementById("s-drv");
+fillSelect(sRace, scRaces);
+function fillDrivers() {
+  const ds = [...new Set(LAPS.filter(l => l.race === sRace.value).map(l => l.drv))].sort((a, b) => (b === "VER") - (a === "VER") || (b === "PER") - (a === "PER") || a.localeCompare(b));
+  fillSelect(sDrv, ds);
+}
+function renderSC() {
+  const types = ["Green", "Yellow", "VSC", "SC"];
+  const agg = (fn) => types.map(t => mean(LAPS.filter(l => l.type === t && l.slow !== null).map(fn)));
+  draw("s-label", [
+    { type: "bar", name: "Measured slowdown", x: types, y: agg(l => l.slow), marker: { color: css("--ink") } },
+    { type: "bar", name: "Training label", x: types, y: agg(l => l.label), marker: { color: css("--medium") } },
+    { type: "bar", name: "Prediction", x: types, y: agg(l => l.pred), marker: { color: css("--ver") } }
+  ], { barmode: "group", yaxis: { title: "Seconds (mean over laps)" } });
+
+  const green = LAPS.filter(l => l.type === "Green");
+  draw("s-flip", [
+    { type: "histogram", name: "SC flag on", x: green.map(l => l.sc - l.pred), opacity: 0.75, marker: { color: css("--soft") }, xbins: { size: 0.05 } },
+    { type: "histogram", name: "VSC flag on", x: green.map(l => l.vsc - l.pred), opacity: 0.6, marker: { color: css("--medium") }, xbins: { size: 0.05 } }
+  ], { barmode: "overlay", xaxis: { title: "Prediction change (s)", range: [-2, 1] }, yaxis: { title: "Green-flag laps" } });
+
+  const ls = LAPS.filter(l => l.race === sRace.value && l.drv === sDrv.value).sort((a, b) => a.lap - b.lap);
+  const shapes = ls.filter(l => l.type === "SC" || l.type === "VSC").map(l => ({
+    type: "rect", xref: "x", yref: "paper", x0: l.lap - 0.5, x1: l.lap + 0.5, y0: 0, y1: 1,
+    fillcolor: css("--medium"), opacity: l.type === "SC" ? 0.35 : 0.18, line: { width: 0 }
+  }));
+  draw("s-trace", [
+    { x: ls.map(l => l.lap), y: ls.map(l => l.slow), name: "Measured slowdown", mode: "lines", line: { color: css("--ink"), width: 2 } },
+    { x: ls.map(l => l.lap), y: ls.map(l => l.label), name: "Training label", mode: "lines", line: { color: css("--medium"), width: 3 } },
+    { x: ls.map(l => l.lap), y: ls.map(l => l.pred), name: "Prediction", mode: "lines", line: { color: css("--ver"), dash: "dot", width: 2 } },
+    { x: ls.map(l => l.lap), y: ls.map(l => l.life), name: "Tyre life (right axis)", yaxis: "y2", mode: "lines", line: { color: css("--muted"), width: 1 } },
+    { x: ls.map(l => l.lap), y: ls.map(l => l.eff), name: "Effective tyre life (right)", yaxis: "y2", mode: "lines", line: { color: css("--muted"), width: 1, dash: "dash" } }
+  ], { shapes, xaxis: { title: "Lap" }, yaxis: { title: "Seconds", range: [-2, 40] },
+    yaxis2: { overlaying: "y", side: "right", rangemode: "tozero", dtick: 10, title: { text: "Laps on set", font: { color: css("--muted") } }, showgrid: false, tickfont: { color: css("--muted") } }, margin: { l: 56, r: 56, t: 10, b: 48 } });
+}
+sRace.addEventListener("change", () => { fillDrivers(); renderSC(); });
+sDrv.addEventListener("change", renderSC);
+
+/* ---------- tab 4: pit laps + temperature ---------- */
+function renderPit() {
+  const scope = document.getElementById("p-scope").value, comp = document.getElementById("p-comp").value, colorBy = document.getElementById("p-color").value;
+  const base = LAPS.filter(l => (scope === "all" || l.drv === "VER" || l.drv === "PER") && (comp === "All" || l.comp === comp));
+  const types = ["Green", "Yellow", "Out-lap", "In-lap", "VSC", "SC"];
+  draw("p-box", types.map(t => ({ type: "box", name: t, y: base.filter(l => l.type === t).map(l => l.res), boxpoints: false,
+    marker: { color: t === "In-lap" || t === "Out-lap" ? css("--soft") : css("--hard") } })),
+    { showlegend: false, yaxis: { title: "Residual (s)", range: [-4, 5] } });
+
+  const pit = ["Out-lap", "In-lap"];
+  draw("p-zero", [
+    { type: "bar", name: "Share of labels = 0", x: pit, y: pit.map(t => { const a = base.filter(l => l.type === t); return a.length ? 100 * a.filter(l => l.label === 0).length / a.length : null; }), marker: { color: css("--medium") }, yaxis: "y", offsetgroup: 1 },
+    { type: "bar", name: "Measured slowdown (s, right)", x: pit, y: pit.map(t => mean(base.filter(l => l.type === t && l.slow !== null).map(l => l.slow))), marker: { color: css("--ink") }, yaxis: "y2", offsetgroup: 2 }
+  ], { barmode: "group", yaxis: { title: "% of laps", range: [0, 105] },
+    yaxis2: { overlaying: "y", side: "right", showgrid: false, title: { text: "Seconds", font: { color: css("--muted") } }, tickfont: { color: css("--muted") } }, margin: { l: 56, r: 56, t: 10, b: 48 } });
+
+  const green = base.filter(l => l.type === "Green");
+  const keys = colorBy === "race" ? RACES : ["SOFT", "MEDIUM", "HARD"];
+  draw("p-scatter", keys.map((k, i) => {
+    const pts = green.filter(l => (colorBy === "race" ? l.race : l.comp) === k);
+    return { type: "scattergl", mode: "markers", name: colorBy === "race" ? k : k.toLowerCase(), x: pts.map(l => l.temp), y: pts.map(l => l.res),
+      marker: { size: 4, opacity: 0.45, color: colorBy === "race" ? RACE_COLORS[i % RACE_COLORS.length] : compColor(k) } };
+  }), { xaxis: { title: "Track temperature (°C)" }, yaxis: { title: "Residual (s)", range: [-4, 6] }, legend: { orientation: "h", y: 1.22, x: 0, font: { size: 11 } } });
+
+  const tr = [];
+  ["SOFT", "MEDIUM", "HARD"].filter(c => comp === "All" || comp === c).forEach(c =>
+    tr.push({ x: temps, y: DATA.pdp[c], name: `${c.toLowerCase()} sweep`, mode: "lines", line: { color: compColor(c), width: 3 } }));
+  RACES.forEach((r, i) => {
+    const pts = green.filter(l => l.race === r);
+    if (!pts.length) return;
+    const ts = pts.map(l => l.temp).sort((a, b) => a - b);
+    tr.push({ x: [ts[Math.floor(ts.length / 2)]], y: [mean(pts.map(l => l.label))], mode: "markers+text", text: [r.replace(/^20(\d\d) /, "’$1 ")],
+      textposition: "top center", textfont: { size: 10, color: css("--muted") }, showlegend: false,
+      marker: { size: 10, color: RACE_COLORS[i % RACE_COLORS.length], line: { color: css("--panel"), width: 1 } },
+      hovertemplate: `${r}: measured %{y:.2f} s at %{x} °C<extra></extra>` });
+  });
+  draw("p-pdp", tr, { xaxis: { title: "Track temperature (°C)" }, yaxis: { title: "Degradation (s)" } });
+}
+["p-scope", "p-comp", "p-color"].forEach(id => document.getElementById(id).addEventListener("change", renderPit));
+
+/* ---------- tabs + boot ---------- */
+const renderers = { driver: renderDriver, compound: renderCompound, sc: renderSC, pit: renderPit };
+const done = {};
+function show(tab) {
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  document.querySelectorAll("section[role=tabpanel]").forEach(s => s.hidden = s.id !== `tab-${tab}`);
+  renderers[tab](); done[tab] = true;
+  history.replaceState(null, "", "#" + tab);
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+document.getElementById("stamp").innerHTML = `${DATA.meta.nLaps.toLocaleString()} laps · ${RACES.length} race sessions<br>model: ${DATA.meta.modelClass}`;
+fillDrivers();
+show(renderers[location.hash.slice(1)] ? location.hash.slice(1) : "driver");
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => Object.keys(done).forEach(t => { if (!document.getElementById(`tab-${t}`).hidden) renderers[t](); }));
+</script>
+</body>
+</html>
