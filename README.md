@@ -29,12 +29,15 @@ AIandVis/
 │       └── race_simulator.py         # Lap-by-lap telemetry replay and strategy simulator
 ├── notebooks/
 │   ├── pair_a_ai_aided/              # Workspace for AI-Aided Pair (Phase I)
+│   │   ├── interactive_dashboard.py
+│   │   ├── dashboard_template.html
 │   │   ├── phase1_visual_analytics.py
 │   │   └── red_bull_analysis.py
 │   └── pair_b_human_only/            # Workspace for Human-Only Pair (Phase I)
 │       └── starter_analysis.py
 ├── ai_logs/
-│   └── phase1_ai_log_template.md     # Template for logging AI interactions (Pair A)
+│   ├── phase1_ai_log.md              # Completed AI interaction log (Pair A)
+│   └── phase1_ai_log_template.md     # Template for logging AI interactions
 ├── visualizations/                   # Output diagnostic plots and figures
 ├── scripts/
 │   ├── download_real_data.py         # Batch telemetry download script
@@ -82,9 +85,10 @@ python test_pipeline.py
 
 ### Pair A (AI-Aided) Workspace
 ```bash
-# Run visual analytics scripts
+# Run visual analytics scripts and build interactive HTML dashboard
 python notebooks/pair_a_ai_aided/phase1_visual_analytics.py
 python notebooks/pair_a_ai_aided/red_bull_analysis.py
+python notebooks/pair_a_ai_aided/interactive_dashboard.py
 ```
 
 ### Pair B (Human-Only) Workspace
