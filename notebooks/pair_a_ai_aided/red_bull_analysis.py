@@ -30,9 +30,17 @@ def analyze_red_bull_drivers(
     df = pd.read_csv(data_path)
     model = joblib.load(model_path)
 
-    # Filter Red Bull drivers on clean dry laps
+    # Filter Red Bull drivers on clean green-flag laps (excluding Lap 1 standing start)
     rb_df = df[df["Driver"].isin(["VER", "PER"])].copy()
-    clean_mask = (~rb_df["IsSafetyCar"]) & (~rb_df["IsVSC"]) & (~rb_df["IsOutLap"]) & (~rb_df["IsInLap"]) & rb_df["LapTimeSeconds"].notna()
+    clean_mask = (
+        (~rb_df["IsSafetyCar"])
+        & (~rb_df["IsVSC"])
+        & (~rb_df["IsYellow"])
+        & (~rb_df["IsOutLap"])
+        & (~rb_df["IsInLap"])
+        & (rb_df["LapNumber"] > 1)
+        & rb_df["LapTimeSeconds"].notna()
+    )
     rb_clean = rb_df[clean_mask].copy()
 
     # Model predictions
@@ -81,9 +89,10 @@ def analyze_red_bull_drivers(
     # Panel 2: Error Residuals Comparison (Model Bias per Driver)
     ver_res = rb_clean[rb_clean["Driver"] == "VER"]["Residual"]
     per_res = rb_clean[rb_clean["Driver"] == "PER"]["Residual"]
-    
-    ax2.hist(ver_res, bins=25, alpha=0.6, color="#0600EF", label=f"VER (Mean Error: {ver_res.mean():+.2f}s)", density=True)
-    ax2.hist(per_res, bins=25, alpha=0.6, color="#E10600", label=f"PER (Mean Error: {per_res.mean():+.2f}s)", density=True)
+    bins = np.linspace(-3.0, 5.0, 33)
+
+    ax2.hist(ver_res, bins=bins, alpha=0.6, color="#0600EF", label=f"VER (Mean Error: {ver_res.mean():+.2f}s)", density=True)
+    ax2.hist(per_res, bins=bins, alpha=0.6, color="#E10600", label=f"PER (Mean Error: {per_res.mean():+.2f}s)", density=True)
     ax2.axvline(0, color="black", linestyle="--", linewidth=1)
     
     ax2.set_xlabel("Model Residual: Actual - Predicted (s)", fontsize=12, fontweight="bold")
