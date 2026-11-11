@@ -1,0 +1,33 @@
+{
+    "team_name": "Claude Nine",
+    "students": [
+        {
+            "student_id": "k12146699",
+            "first_name": "Artur",
+            "last_name": "Garipov",
+            "email": "art.gari@yandex.ru",
+            "github_user": "grpvam"
+        },
+        {
+            "student_id": "k12140222",
+            "first_name": "Maxim",
+            "last_name": "Kalpin",
+            "email": "kalpinmaxim@gmail.com",
+            "github_user": "ivrejchik"
+        },
+        {
+            "student_id": "k12547846",
+            "first_name": "Daniel",
+            "last_name": "Vuksan",
+            "email": "DVuksan28@gmail.com",
+            "github_user": "DanielDaniel1212"
+        },
+        {
+            "student_id": "k12546363",
+            "first_name": "Kirill",
+            "last_name": "Zaitsev",
+            "email": "cyril.frize@gmail.com",
+            "github_user": "V0val0x"
+        }
+    ]
+}

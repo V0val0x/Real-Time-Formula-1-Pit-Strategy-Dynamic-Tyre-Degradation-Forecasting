@@ -1,0 +1,9 @@
+{
+    "team_name": "Claude Nine",
+    "students": [
+        { "first_name": "Artur", "last_name": "Garipov", "workload": 0.25 },
+        { "first_name": "Maxim", "last_name": "Kalpin", "workload": 0.25 },
+        { "first_name": "Daniel", "last_name": "Vuksan", "workload": 0.25 },
+        { "first_name": "Kirill", "last_name": "Zaitsev", "workload": 0.25 }
+    ]
+}

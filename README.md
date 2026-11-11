@@ -9,19 +9,27 @@ An end-to-end telemetry pipeline, physics-informed machine learning model, and r
 
 ---
 
+## Task, Model, and Dataset
+
+* **Task:** Regression and decision-support forecasting of Formula 1 tyre degradation (`DegradationDelta` in seconds per lap lost relative to fresh-tyre compound baseline) and real-time pit-stop cliff detection for Red Bull Racing (`VER` vs `PER`).
+* **Model:** Pre-trained `TyreDegradationModel` (`src/models/trained_tyre_model.joblib`, backed by scikit-learn `GradientBoostingRegressor` with 9 input features: `Compound_Code`, `TyreLife`, `EffectiveTyreLife`, `TrackTemp`, `FuelRemainingKg`, `IsVerstappen`, `IsSafetyCar`, `IsVSC`, `IsOutLap`), coupled with a rule-based contingency strategy recommender (`src/strategy/strategy_engine.py`).
+* **Dataset:** `data/processed/f1_curated_telemetry.csv` — 9,202 curated FastF1 telemetry laps across 8 Grand Prix sessions (`2023 Bahrain`, `2023 Spain`, `2023 Monaco`, `2023 Austria`, `2023 Great Britain`, `2023 Monza`, `2024 Bahrain`, `2024 Japan`), including 963 Red Bull Racing laps (Max Verstappen and Sergio Perez).
+
+---
+
 ## Repository Structure
 
 ```
 AIandVis/
 ├── data/
 │   └── processed/
-│       └── f1_curated_telemetry.csv   # 9,202 curated FastF1 laps across 7 Grand Prix
+│       └── f1_curated_telemetry.csv   # 9,202 curated FastF1 laps across 8 Grand Prix sessions
 ├── src/
 │   ├── data/
 │   │   └── f1_data.py                # FastF1 loader and feature engineering pipeline
 │   ├── models/
 │   │   ├── tyre_model.py             # Physics-aware degradation model with cliff detector
-│   │   └── trained_tyre_model.joblib # Serialized model artifact (R² = 0.724, MAE = 0.68s)
+│   │   └── trained_tyre_model.joblib # Serialized GradientBoostingRegressor model artifact
 │   ├── strategy/
 │   │   ├── strategy_engine.py        # Real-time multi-branch strategy recommender
 │   │   └── pit_dynamics.py           # Pit-lane loss and cold tyre warm-up models
@@ -34,9 +42,10 @@ AIandVis/
 │   │   ├── phase1_visual_analytics.py
 │   │   └── red_bull_analysis.py
 │   └── pair_b_human_only/            # Workspace for Human-Only Pair (Phase I)
-│       └── starter_analysis.py
+│       └── phase1_black_box_analysis.py
+├── ai-interactions/
+│   └── phase1_ai_log.md              # Completed AI interaction log (Pair A)
 ├── ai_logs/
-│   ├── phase1_ai_log.md              # Completed AI interaction log (Pair A)
 │   └── phase1_ai_log_template.md     # Template for logging AI interactions
 ├── visualizations/                   # Output diagnostic plots and figures
 ├── scripts/
@@ -45,6 +54,9 @@ AIandVis/
 ├── test_pipeline.py                  # End-to-end race simulation demo
 ├── requirements.txt                  # Python dependencies
 ├── PHASE1_GUIDE.md                   # Phase I requirements and deliverables guide
+├── ai_reflection_midpoint.md         # Phase I reflection on AI use
+├── team-info.json
+├── workload.json
 └── README.md
 ```
 
@@ -93,8 +105,7 @@ python notebooks/pair_a_ai_aided/interactive_dashboard.py
 
 ### Pair B (Human-Only) Workspace
 ```bash
-# Run starter analysis script
-python notebooks/pair_b_human_only/starter_analysis.py
+python notebooks/pair_b_human_only/phase1_black_box_analysis.py
 ```
 
 ---
@@ -117,7 +128,7 @@ To ensure smooth collaboration between the two pairs and prevent merge conflicts
 * **Shared Core Fixes:** `core/<bugfix-or-feature>` (e.g. `core/fix-pit-delta`, `core/data-loader-patch`).
 
 ### 2. Workspace Isolation Rule
-* **Pair A** works strictly inside `notebooks/pair_a_ai_aided/` and `ai_logs/`.
+* **Pair A** works strictly inside `notebooks/pair_a_ai_aided/` and `ai-interactions/`.
 * **Pair B** works strictly inside `notebooks/pair_b_human_only/`.
 * Shared core files (`src/`, `data/`, `scripts/`) must only be modified with explicit alignment from all 4 team members.
 
