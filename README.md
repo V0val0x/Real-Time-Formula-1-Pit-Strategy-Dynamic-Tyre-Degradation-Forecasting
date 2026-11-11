@@ -34,9 +34,10 @@ AIandVis/
 │   │   ├── phase1_visual_analytics.py
 │   │   └── red_bull_analysis.py
 │   └── pair_b_human_only/            # Workspace for Human-Only Pair (Phase I)
-│       └── starter_analysis.py
+│       └── phase1_black_box_analysis.py
+├── ai-interactions/
+│   └── phase1_ai_log.md              # Completed AI interaction log (Pair A)
 ├── ai_logs/
-│   ├── phase1_ai_log.md              # Completed AI interaction log (Pair A)
 │   └── phase1_ai_log_template.md     # Template for logging AI interactions
 ├── visualizations/                   # Output diagnostic plots and figures
 ├── scripts/
@@ -45,6 +46,9 @@ AIandVis/
 ├── test_pipeline.py                  # End-to-end race simulation demo
 ├── requirements.txt                  # Python dependencies
 ├── PHASE1_GUIDE.md                   # Phase I requirements and deliverables guide
+├── ai_reflection_midpoint.md         # Phase I reflection on AI use
+├── team-info.json
+├── workload.json
 └── README.md
 ```
 
@@ -93,8 +97,7 @@ python notebooks/pair_a_ai_aided/interactive_dashboard.py
 
 ### Pair B (Human-Only) Workspace
 ```bash
-# Run starter analysis script
-python notebooks/pair_b_human_only/starter_analysis.py
+python notebooks/pair_b_human_only/phase1_black_box_analysis.py
 ```
 
 ---
