@@ -1,8 +1,8 @@
 # Midpoint reflection on Generative AI use (Phase I)
 
-**AI-only pair:**
-- Daniel Vuksan, student ID: k________
-- Kirill Zaitsev, student ID: k________
+**AI-aided pair:**
+- Daniel Vuksan, student ID: k12547846
+- Kirill Zaitsev, student ID: k12546363
 
 **Team:** Claude Nine
 **Tool:** Claude (claude.ai)
@@ -34,7 +34,7 @@ Pair B (Artur Garipov, Maxim Kalpin) worked from the same four questions, datase
 
 **What each pair found that the other missed:**
 
-| Pair A (AI-only) | Pair B |
+| Pair A (AI-aided) | Pair B (Human-only) |
 |---|---|
 | What-if probes: re-predicting every lap with only the driver, SC or VSC flag switched | Wet and intermediate tyres as a failure case (5.7 s error vs 0.56 s on dry). We filtered to dry compounds at the start and never saw them. |
 | Cliff timing per compound from the strategy engine's cliff detector, plus a temperature sweep | The VER/PER error gap is almost entirely Perez at Monaco 2023. Without that race it drops from 0.20 s to 0.05 s. |
@@ -57,7 +57,7 @@ The roles switch for Phase II. We propose to follow the Phase I findings:
 
 Each pair will use at least two explanation methods and compare them, for example permutation importance, partial dependence, local explanations and nearest-neighbour comparison of laps.
 
-## What we would tell another AI-only pair
+## What we would tell another AI-aided pair
 
 - Check claims against the saved artifact and the data, not against the code the AI read.
 - Look at every rendered chart yourself. Plausible-looking code still draws wrong pictures.

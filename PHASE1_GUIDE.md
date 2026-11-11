@@ -52,24 +52,24 @@ The 4 group members are divided into two pairs for Phase I:
                                     │
                ┌────────────────────┴────────────────────┐
                ▼                                         ▼
-      Pair A (AI-Aided)                         Pair B (Human-Only)
+       Pair A (AI-Aided)                         Pair B (Human-Only)
    `notebooks/pair_a_ai_aided/`              `notebooks/pair_b_human_only/`
    • Active use of GenAI (LLMs)              • No Generative AI
    • Interactive dashboards / controls       • Rely on own reasoning & code
-   • Mandatory log in ai_logs/               • Traditional static/exploratory plots
+   • Mandatory log in ai-interactions/       • Traditional static/exploratory plots
 ```
 
 ### Pair A (AI-Aided Pair)
 - **Role:** Uses Generative AI (ChatGPT, Claude, etc.) to brainstorm visualizations, generate plotting code, and build interactive exploration widgets.
 - **Expectation:** Higher interaction richness (e.g., interactive sliders, dropdowns, dynamic filtering) to reflect AI acceleration.
-- **Deliverable:** Keep a log of prompts, accepted/rejected suggestions, and AI errors in `ai_logs/phase1_ai_log.md` (using `ai_logs/phase1_ai_log_template.md`).
+- **Deliverable:** Keep a log of prompts, accepted/rejected suggestions, and AI errors in `ai-interactions/phase1_ai_log.md` (using `ai_logs/phase1_ai_log_template.md`) and midpoint reflection in `ai_reflection_midpoint.md`.
 
 ### Pair B (Human-Only Pair)
 - **Role:** Conducts the analysis independently without Generative AI assistance. Rely on standard data science libraries (Matplotlib, Seaborn, Pandas) and manual reasoning.
 - **Code Completion:** Standard IDE completion and reading official library documentation are permitted; code generation prompts are prohibited.
 ### Git Branching Rules for Pairs
 - **Never push untested code directly to `main`**.
-- Pair A works on `pair-a/...` branches (modifying only `notebooks/pair_a_ai_aided/` and `ai_logs/`).
+- Pair A works on `pair-a/...` branches (modifying only `notebooks/pair_a_ai_aided/` and `ai-interactions/`).
 - Pair B works on `pair-b/...` branches (modifying only `notebooks/pair_b_human_only/`).
 - Merge changes via GitHub Pull Requests reviewed by the other pair. See detailed git commands in [README.md](README.md#git-branching--collaboration-workflow).
 
@@ -79,11 +79,12 @@ The 4 group members are divided into two pairs for Phase I:
 
 At the midpoint deadline, each group submits:
 
-1. **Code from Both Pairs:**
+1. **Code from Both Pairs & Metadata:**
    - Pair A code in `notebooks/pair_a_ai_aided/`.
    - Pair B code in `notebooks/pair_b_human_only/`.
-2. **AI Interaction Record:**
-   - Completed `ai_logs/phase1_ai_log.md` from the AI-aided pair.
+   - Root metadata files: `team-info.json` and `workload.json`.
+2. **AI Interaction Record & Reflection:**
+   - Completed `ai-interactions/phase1_ai_log.md` and `ai_reflection_midpoint.md`.
 3. **Recorded Progress-Update Video (Max 5 Minutes):**
    - *Minute 0:00–1:00:* Introduction to the problem, task, and dataset.
    - *Minute 1:00–2:30:* Human-only pair findings and diagnostic charts.
